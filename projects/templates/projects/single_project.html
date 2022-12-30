@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load static %}
+
+    <!-- Main Section -->
+    <main class="singleProject my-md">
+        <div class="container">
+            <div class="layout">
+                <div class="column column--1of3">
+                    <h3 class="singleProject__subtitle">Tools & Stacks</h3>
+                    <div class="singleProject__toolStack">
+                        {% for tag in tags %}
+                            <span class="tag tag--pill tag--sub tag--lg">
+              <small>{{ tag }}</small>
+            </span>
+                        {% endfor %}
+                    </div>
+                    {% if project.source_link %}
+                        <a class="singleProject__liveLink" href="#" target="_blank"><i class="im im-external-link"></i>Source
+                            Code
+                        </a>
+                    {% endif %}
+                    {% if project.demo_link %}
+                        <a class="singleProject__liveLink" href="#" target="_blank"><i class="im im-external-link"></i>Demo
+                            Link
+                        </a>
+                    {% endif %}
+
+                </div>
+                <div class="column column--2of3">
+                    <img class="singleProject__preview" src="{{ project.featured_image.url }}"
+                         alt="portfolio thumbnail"/>
+                    <a href=""
+                       class="singleProject__developer">{{ project.owner.first_name }} {{ project.owner.last_name }}</a>
+                    <h2 class="singleProject__title">{{ project.title }}</h2>
+                    <h3 class="singleProject__subtitle">About the Project</h3>
+                    <div class="singleProject__info">
+                        {{ project.description }}
+                        <br/>
+                        <br/>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic voluptates earum possimus a
+                        perferendis culpa
+                        omnis, libero quae soluta, obcaecati amet. Quam earum ad qui reprehenderit eligendi porro ab
+                        possimus
+                        fugit voluptatem rerum eius sapiente, nemo mollitia aperiam suscipit culpa corrupti officiis
+                        dicta soluta
+                        ut similique! Iste soluta quae tempora alias assumenda? Nam nesciunt nihil enim tempore cum quo
+                        architecto?
+                    </div>
+
+                    <div class="comments">
+                        <h3 class="singleProject__subtitle">Feedback</h3>
+                        <h5 class="project--rating">
+                            {{ project.vote_ratio }}% Postitive Feedback ({{ project.vote_total }}
+                            Vote{{ project.vote_total|pluralize:'s' }})
+                        </h5>
+                        {% if request.user.profile.id in project.reviewers %}
+                            {# User has already reviewed their project #}
+                            <p class="text-red">You have already reviewed this Projects</p>
+                        {% elif request.user.profile == project.owner.username %}
+                            <p>you can not review your own projects</p>
+                        {% elif request.user.is_authenticated %}
+                            <form class="form" action="" method="POST">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div class="form__field">
+                                        <label for="formInput#textarea">{{ field.label }} </label>
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <input class="btn btn--sub btn--lg" type="submit" value="Comments"/>
+                            </form>
+                        {% else %}
+                            <p>You need to <a href="{% url 'users:login' %}?next={{ request.path }}">Login</a> To create a review</p>
+                        {% endif %}
+                        <div class="commentList">
+                            {% for review in project.review_set.all %}
+                                {#if there is a body then output the comment#}
+                                {% if review.body %}
+                                    <div class="comment">
+                                        <a href="profile.html">
+                                            <img class="avatar avatar--md"
+                                                 src="{{ review.owner.profile_image.url }}"
+                                                 alt="user"/>
+                                        </a>
+                                        <div class="comment__details">
+                                            <a href="{% url 'users:user_profile' review.owner.id %}"
+                                               class="comment__author">{{ review.owner.first_name }} {{ review.owner.last_name }}</a>
+                                            <p class="comment__info">
+                                                {{ review.body|linebreaks }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+
+
+{% endblock %}
